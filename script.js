@@ -1,5 +1,5 @@
 // ====== PENGATURAN — ganti sesuai kebutuhanmu ======
-var ADMIN_WA = "6282288677716"; // nomor admin, format 62xxxxxxxxxx
+var ADMIN_WA = "6285363149260"; // nomor admin, format 62xxxxxxxxxx
 var PRODUCTS = [
  {id:"P1",name:"Oreo Stoberi",img:"images/stoberi.webp",price:15000,tags:["Manis","Segar","Creamy"],
   desc:"Perpaduan manisnya stoberi dengan creamy Oreo yang bikin segar!",
