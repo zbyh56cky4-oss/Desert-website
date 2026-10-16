@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trio Rasa — Dessert Oreo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="topbar">Dessert Oreo · mulai Rp15.000 · Follow <a href="https://instagram.com/triorasa3" target="_blank" rel="noopener">@triorasa3</a></div>
+<header><div class="wrap">
+<div class="logo"><img src="images/logo-kecil.webp" alt="">Trio Rasa</div>
+<nav><a href="#katalog">Katalog</a><a href="#ulasan">Ulasan</a><a href="#faq">FAQ</a><a href="#kontak">Kontak</a></nav>
+<button class="btn ghost" id="ordersBtn">Pesanan Saya</button>
+<button class="btn" id="cartBtn">Keranjang (0)</button>
+</div></header>
+
+<main>
+<div class="hero-bg"><div class="wrap hero">
+<div>
+<h1>Manisnya bikin nagih!</h1>
+<p>Dessert Oreo dengan 4 varian rasa. Cup kecil, rasa besar — mulai Rp15.000 per cup.</p>
+<div class="btns"><a class="btn" href="#katalog" style="text-decoration:none">Lihat dessert</a><a class="btn ghost" href="https://instagram.com/triorasa3" target="_blank" rel="noopener" style="text-decoration:none">Instagram @triorasa3</a></div>
+</div>
+<img class="hero-logo" src="images/logo.webp" alt="Trio Rasa — Ig: triorasa3">
+</div></div>
+
+<section id="katalog"><div class="wrap">
+<h2>Katalog Dessert</h2>
+<p class="sub">Dessert Oreo dengan 4 varian rasa, Original Rp15.000, varian lain Rp18.000 per cup.</p>
+<div class="grid" id="grid"></div>
+</div></section>
+
+<section id="ulasan"><div class="wrap">
+<h2>Ulasan Pelanggan</h2>
+<p class="sub" id="rvSum">Memuat ulasan…</p>
+<p class="sub" id="rvNote">Mode demo: ulasan baru hanya tersimpan di perangkat ini sampai database (Firebase) dihubungkan.</p>
+<div class="rv">
+<div class="rvform">
+<label for="rvName" style="margin-top:0">Nama</label><input id="rvName" maxlength="40" autocomplete="name">
+<label>Bintang</label><div class="stars" id="rvStars" role="group" aria-label="Beri bintang"></div>
+<label for="rvText">Ulasan</label><textarea id="rvText" rows="3" maxlength="300" placeholder="Ceritakan rasanya…"></textarea>
+<div class="err" id="rvErr" role="alert"></div>
+<button class="btn" id="rvSend">Kirim ulasan</button>
+</div>
+<div class="rvlist" id="rvList" aria-live="polite"></div>
+</div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+<h2>FAQ</h2>
+<p class="sub">Pertanyaan yang sering ditanyakan.</p>
+<details><summary>Bagaimana cara memesan?</summary><p>Tambahkan dessert ke keranjang, setujui pesanan dua kali, isi data penerima, lalu pesanan dikirim ke admin lewat WhatsApp.</p></details>
+<details><summary>Kapan pesanan saya diterima?</summary><p>Sesuai jadwal pengambilan yang kamu isi. Admin akan mengonfirmasi saat dessert sudah diterima.</p></details>
+<details><summary>Apakah bisa batal atau ubah pesanan?</summary><p>Sebelum konfirmasi kedua kamu bebas mengubah keranjang. Setelah itu, hubungi admin.</p></details>
+</div></section>
+</main>
+
+<footer id="kontak"><div class="wrap">
+<p>Ada pertanyaan? <a href="#" id="adminLink" style="color:var(--accent);font-weight:800">Chat Admin di WhatsApp</a></p>
+<p>Instagram: <a href="https://instagram.com/triorasa3" target="_blank" rel="noopener" style="color:var(--accent);font-weight:800">@triorasa3</a></p>
+<p>© Trio Rasa</p>
+</div></footer>
+
+<button class="fab" id="fab" aria-label="Buka keranjang"></button>
+<div class="ov center" id="detailOv"><div class="panel" id="detail"></div></div>
+<div class="ov" id="drawerOv"><div class="panel" id="drawer"></div></div>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

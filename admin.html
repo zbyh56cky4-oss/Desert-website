@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Rekap Pesanan Trio Rasa</title>
+<link rel="stylesheet" href="style.css">
+<style>.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:16px 0}.stat{background:var(--soft);border-radius:18px;padding:16px}.stat b{display:block;font-size:1.5rem;color:var(--accent)}.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--muted);white-space:nowrap}.mini-t{max-width:520px}</style></head>
+<body><div class="wrap" style="padding-top:24px;padding-bottom:60px">
+<h1>Rekap Pesanan</h1>
+<div id="login" hidden><p class="sub">Masuk dengan akun admin Firebase.</p>
+<label for="em">Email</label><input id="em" type="email" autocomplete="username">
+<label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+<div class="err" id="err" role="alert"></div><div class="btns"><button class="btn" id="go">Masuk</button></div></div>
+<div id="app" hidden>
+<p class="sub" id="mode"></p>
+<div class="stats"><div class="stat"><span>Jumlah pesanan</span><b id="s1">0</b></div><div class="stat"><span>Cup terjual</span><b id="s2">0</b></div><div class="stat"><span>Total pendapatan</span><b id="s3">Rp0</b></div></div>
+<h2 style="font-size:1.3rem;margin:20px 0 8px">Rekap per produk</h2>
+<div class="tw mini-t"><table><thead><tr><th>Produk</th><th>Cup</th><th>Pendapatan</th></tr></thead><tbody id="prodRows"></tbody></table></div>
+<h2 style="font-size:1.3rem;margin:24px 0 8px">Semua pesanan</h2>
+<div class="btns" style="margin:0 0 12px"><input id="q" placeholder="Cari nama, kelas, ID…" style="max-width:280px"><button class="btn ghost" id="ref">Muat ulang</button><button class="btn" id="csv">Unduh CSV</button></div>
+<div class="tw"><table><thead><tr><th>Waktu</th><th>ID</th><th>Nama</th><th>Kelas</th><th>Lokasi</th><th>Jadwal ambil</th><th>Item</th><th>Catatan</th><th>Total</th></tr></thead><tbody id="rows"></tbody></table></div>
+</div></div>
+<script src="config.js"></script>
+<script>
+var $=function(i){return document.getElementById(i)},rp=function(n){return "Rp"+Number(n).toLocaleString("id-ID")};
+var token="",rows=[];
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function fromF(d){var o={};for(var k in d.fields){var v=d.fields[k];o[k]=v.stringValue!==undefined?v.stringValue:(v.doubleValue!==undefined?v.doubleValue:Number(v.integerValue))}return o}
+function items(o){try{return typeof o.items==="string"?JSON.parse(o.items):o.items||[]}catch(e){return[]}}
+function load(){
+  if(!(FB.projectId&&FB.apiKey)){try{rows=JSON.parse(localStorage.getItem("orders")||"[]")}catch(e){rows=[]}$("mode").textContent="Mode demo: hanya pesanan dari perangkat ini. Isi config.js agar semua pesanan tampil di sini.";render();return}
+  fetch("https://firestore.googleapis.com/v1/projects/"+FB.projectId+"/databases/(default)/documents:runQuery",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({structuredQuery:{from:[{collectionId:"orders"}],orderBy:[{field:{fieldPath:"at"},direction:"DESCENDING"}],limit:1000}})})
+  .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){rows=d.filter(function(x){return x.document}).map(function(x){return fromF(x.document)});$("mode").textContent="Terhubung ke database. "+rows.length+" pesanan.";render()}).catch(function(){$("mode").textContent="Gagal memuat. Cek aturan Firestore dan login.";});
+}
+function render(){
+  var q=$("q").value.toLowerCase(),f=rows.filter(function(o){return !q||[o.id,o.name,o.cls,o.loc].join(" ").toLowerCase().indexOf(q)>-1});
+  var cups=0,sum=0,by={};
+  rows.forEach(function(o){sum+=Number(o.total)||0;items(o).forEach(function(i){cups+=i.q;var b=by[i.n]||(by[i.n]={q:0,r:0});b.q+=i.q;b.r+=i.q*i.p})});
+  $("s1").textContent=rows.length;$("s2").textContent=cups;$("s3").textContent=rp(sum);
+  $("prodRows").innerHTML=Object.keys(by).map(function(k){return "<tr><td>"+esc(k)+"</td><td>"+by[k].q+"</td><td>"+rp(by[k].r)+"</td></tr>"}).join("")||'<tr><td colspan="3">Belum ada data.</td></tr>';
+  $("rows").innerHTML=f.map(function(o){return "<tr><td>"+new Date(o.at).toLocaleString("id-ID",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})+"</td><td>"+esc(o.id)+"</td><td>"+esc(o.name)+"</td><td>"+esc(o.cls)+"</td><td>"+esc(o.loc)+"</td><td>"+esc(o.date)+"</td><td>"+items(o).map(function(i){return esc(i.n)+" ×"+i.q}).join("<br>")+"</td><td>"+esc(o.note)+"</td><td>"+rp(o.total)+"</td></tr>"}).join("")||'<tr><td colspan="9">Belum ada pesanan.</td></tr>';
+}
+function csv(){
+  var L=[["Waktu","ID","Nama","Kelas","Lokasi","Jadwal ambil","Item","Catatan","Total"]].concat(rows.map(function(o){return [new Date(o.at).toLocaleString("id-ID"),o.id,o.name,o.cls,o.loc,o.date,items(o).map(function(i){return i.n+" x"+i.q}).join("; "),o.note||"",o.total]}));
+  var t=L.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n");
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+t],{type:"text/csv"}));a.download="rekap-pesanan.csv";a.click();
+}
+function show(){$("login").hidden=true;$("app").hidden=false;load()}
+$("go").onclick=function(){fetch("https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="+FB.apiKey,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:$("em").value.trim(),password:$("pw").value,returnSecureToken:true})}).then(function(r){return r.json()}).then(function(d){if(!d.idToken)throw 0;token=d.idToken;show()}).catch(function(){$("err").textContent="Email atau password salah."})};
+$("q").oninput=render;$("ref").onclick=load;$("csv").onclick=csv;
+if(FB.projectId&&FB.apiKey)$("login").hidden=false;else show();
+</script></body></html>
